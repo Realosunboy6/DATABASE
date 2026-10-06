@@ -1,0 +1,127 @@
+{% extends "finance/base.html" %}
+
+{% block title %}Dashboard | USFMAE-IS{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <div class="page-kicker">Overview</div>
+    <h2>Student Finance Dashboard</h2>
+    <p class="page-subtitle">Monitor student balances, payments, and pending aid activity from one place.</p>
+  </div>
+</div>
+
+<section class="grid">
+  <div class="card stat-card">
+    <div class="stat-label">Students</div>
+    <div class="stat-value">{{ metrics.student_count }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Total Charges</div>
+    <div class="stat-value">${{ metrics.total_charges }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Total Payments</div>
+    <div class="stat-value">${{ metrics.total_payments }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Outstanding Balance</div>
+    <div class="stat-value">${{ metrics.total_balance }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Open Action Items</div>
+    <div class="stat-value">{{ metrics.open_action_items }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Missing Documents</div>
+    <div class="stat-value">{{ metrics.missing_documents }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Overdue Charges</div>
+    <div class="stat-value">{{ metrics.overdue_charges }}</div>
+  </div>
+  <div class="card stat-card">
+    <div class="stat-label">Due Soon</div>
+    <div class="stat-value">{{ metrics.due_soon_charges }}</div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h3>Recent Students</h3>
+    <a class="button button-secondary" href="{% url 'finance:student_list' %}">View all students</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Major</th><th>GPA</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for student in students %}
+        <tr>
+          <td><a href="{{ student.get_absolute_url }}">{{ student }}</a></td>
+          <td>{{ student.major }}</td>
+          <td>{{ student.gpa }}</td>
+          <td><span class="badge badge-neutral">{{ student.get_enrollment_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No students have been added yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h3>Open Student Action Items</h3>
+    <a class="button button-secondary" href="{% url 'finance:action_items' %}">Manage action items</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Action</th><th>Category</th><th>Priority</th><th>Due Date</th></tr>
+      </thead>
+      <tbody>
+        {% for item in open_action_items %}
+        <tr>
+          <td><a href="{{ item.student.get_absolute_url }}">{{ item.student }}</a></td>
+          <td>{{ item.title }}</td>
+          <td><span class="badge badge-neutral">{{ item.get_category_display }}</span></td>
+          <td><span class="badge {% if item.priority == 'URGENT' %}badge-danger{% elif item.priority == 'NORMAL' %}badge-warning{% else %}badge-neutral{% endif %}">{{ item.get_priority_display }}</span></td>
+          <td>{{ item.due_date|default:"No due date" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No open action items.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h3>Pending Aid Applications</h3>
+    <a class="button button-secondary" href="{% url 'finance:aid_applications' %}">Review aid</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Student</th><th>Scholarship</th><th>Date</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        {% for application in pending_applications %}
+        <tr>
+          <td>{{ application.student }}</td>
+          <td>{{ application.scholarship }}</td>
+          <td>{{ application.application_date }}</td>
+          <td><span class="badge badge-warning">{{ application.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No pending applications.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
