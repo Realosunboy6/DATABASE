@@ -1,4 +1,4 @@
-# DATA
+# DATABASE
 
 Data-related projects and coursework.
 
